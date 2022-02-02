@@ -28,22 +28,10 @@ class NeuralNetwork:
 
     def forward(self, x):
         a = [x]
-
         for l in range(len(self.weights)):
-            local_a = np.zeros(len(self.weights[l]))
-
-            for n in range(len(local_a)):
-                z = np.dot(self.weights[l][n], a[l]) + self.biases[l][n]
-                local_a[n] = self.sigmoid(z)
-
-            a.append(local_a)
-
+            z = np.dot(self.weights[l], a[l]) + self.biases[l]
+            a.append(self.sigmoid(z));
         return a
-
-    def predict(self, x):
-        outputs = self.forward(x)
-        output = outputs[-1]
-        return output
 
     def backward(self, a, y):
         alpha = 0.2
@@ -68,68 +56,23 @@ class NeuralNetwork:
 
             deltas.append(delta)
 
-    def train(self, X, Y):
-        epoch = 10000
-        #  epoch = 1
+    def predict(self, x):
+        outputs = self.forward(x)
+        output = outputs[-1]
+        return output
 
-        while epoch > 0:
-            epoch -= 1
+    def train(self, x_train, y_train, epochs = 10000):
+        for epoch in range(epochs):
+            error = 0
 
-            for i in range(len(X)):
-                a = self.forward(X[i])
-                self.backward(a, Y[i])
+            for x, y in zip(x_train, y_train):
+                a = self.forward(x)
 
+                error += np.sum(0.5 * np.power((a[-1] - y), 2))
 
-x = np.array([
-    [1, 1],
-    [1, 0],
-    [0, 1],
-    [0, 0],
+                self.backward(a, y)
 
-    [1, 0],
-    [0, 1],
-    [1, 1],
-    [0, 0],
+            error /= len(x_train)
 
-    [1, 0],
-    [0, 0],
-    [1, 1],
-    [0, 1],
-    
-    [1, 1],
-    [0, 0],
-    [0, 1],
-    [1, 0],
-])
-y = np.array([
-    1, 0, 0, 1,
-    0, 0, 1, 1,
-    0, 1, 1, 0,
-    1, 1, 0, 0
-])
-
-#  x = np.array([
-#      [1, 1],
-#      [0, 1],
-#      [1, 0],
-#      [0, 0]
-#  ])
-
-#  y = np.array([
-#      [1, 1],
-#      [0, 1],
-#      [1, 0],
-#      [0, 0]
-#  ])
-
-nn = NeuralNetwork([2, 4, 1])
-
-nn.train(x, y)
-
-while True:
-    x1 = input("Enter a x1: ")
-    x2 = input("Enter a x2: ")
-
-    print(nn.predict([
-        int(x1), int(x2)
-    ]))
+            if(epoch % 1000 == 0):
+                print(f"Epochs: {epoch}/{epochs}. Error={error}")
