@@ -7,7 +7,7 @@ class Activation(Layer):
 
     def forward(self, input):
         self.input = input
-        self.output = self.activation(input)
+        self.output = self.activation(self.input)
         return self.output
 
     def backward(self, output_gradient, learning_rate):

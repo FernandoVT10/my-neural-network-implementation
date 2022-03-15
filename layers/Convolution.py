@@ -21,13 +21,11 @@ class Convolution(Layer):
     def forward(self, input):
         self.input = input
 
-        output = np.zeros((self.num_of_kernels, self.output_size, self.output_size))
+        output = np.copy(self.biases)
 
         for i in range(self.num_of_kernels):
             for k in range(self.depth):
                 output[i] += signal.correlate2d(input[k], self.kernels[i, k], mode="valid")
-        
-            output[i] += self.biases[i]
 
         return output
     
@@ -36,8 +34,8 @@ class Convolution(Layer):
 
         for i in range(self.num_of_kernels):
             for k in range(self.depth):
-                self.kernels[i, k] -= signal.correlate2d(self.input[k], output_gradient[i], mode="valid") * learning_rate
                 input_gradient[i] += signal.convolve2d(output_gradient[i], self.kernels[i, k], mode="full")
+                self.kernels[i, k] -= signal.correlate2d(self.input[k], output_gradient[i], mode="valid") * learning_rate
 
         self.biases -= output_gradient * learning_rate
 
