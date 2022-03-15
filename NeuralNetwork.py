@@ -36,5 +36,22 @@ class NeuralNetwork:
 
             print(f"Epoch: {e + 1} / {epochs}  Error: {error}")
 
+    def test(self, x_test, y_test, verbose=False):
+        accuracy: "list[int]" = []
+
+        for x, y in zip(x_test, y_test):
+            prediction = self.forward(x)
+
+            local_accuracy = y - (y - prediction)
+            real_accuracy = np.max(local_accuracy)
+
+            accuracy.append(np.max(real_accuracy))
+
+            if verbose:
+                print(f"Prediction: {prediction} True: {y} Accuracy: {real_accuracy}")
+
+        average_accuracy = np.sum(accuracy) / np.shape(y_test)[0]
+        print(f"Average Accuracy: {average_accuracy}")
+
     def predict(self, x):
         return self.forward(x)
