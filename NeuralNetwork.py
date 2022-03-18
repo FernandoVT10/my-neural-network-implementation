@@ -1,14 +1,11 @@
 import numpy as np
 
-import matplotlib.pyplot as plt
-
-from layers import Layer
-
 class NeuralNetwork:
-    def __init__(self, layers: "list[Layer]", loss, loss_prime):
+    def __init__(self, layers, loss, loss_prime):
         self.layers = layers
         self.loss = loss
         self.loss_prime = loss_prime
+        self.error_array = []
 
     def forward(self, x):
         output = x
@@ -32,7 +29,8 @@ class NeuralNetwork:
 
                 self.backward(output_gradient, learning_rate)
 
-            error /= np.size(x_train)
+            error /= x_train.shape[0]
+            self.error_array.append(error)
 
             print(f"Epoch: {e + 1} / {epochs}  Error: {error}")
 
@@ -42,16 +40,21 @@ class NeuralNetwork:
         for x, y in zip(x_test, y_test):
             prediction = self.forward(x)
 
-            local_accuracy = y - (y - prediction)
-            real_accuracy = np.max(local_accuracy)
+            local_accuracy = 0
+            if(y.shape[0] == 1):
+                # if there's just a prediction it means that we're using binary cross entropy and therefore
+                # we may take 0 as a correct value
+                local_accuracy = 1 - abs(y - prediction)
+            else:
+                local_accuracy = 1 - np.max((y - prediction))
 
-            accuracy.append(np.max(real_accuracy))
+            accuracy.append(np.max(local_accuracy))
 
             if verbose:
-                print(f"Prediction: {prediction} True: {y} Accuracy: {real_accuracy}")
+                print(f"Prediction: {prediction} True: {y} Accuracy: {local_accuracy}")
 
         average_accuracy = np.sum(accuracy) / np.shape(y_test)[0]
-        print(f"Average Accuracy: {average_accuracy}")
+        print(f"Total Accuracy: {average_accuracy}")
 
     def predict(self, x):
         return self.forward(x)

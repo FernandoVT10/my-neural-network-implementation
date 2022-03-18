@@ -1,17 +1,12 @@
 import numpy as np
 
-from .Activation import Activation
+from layers import Layer
 
-class SoftMax(Activation):
-    def __init__(self):
-        def activation(x):
-            tmp = np.exp(x)
-            return tmp / np.sum(tmp)
-
-        def d_activation(x):
-            return x * (1 - x)
-
-        super().__init__(activation, d_activation)
+class SoftMax(Layer):
+    def forward(self, input):
+        tmp = np.exp(input)
+        self.output = tmp / np.sum(tmp)
+        return self.output
 
     def backward(self, output_gradient, learning_rate):
         #  return output_gradient
