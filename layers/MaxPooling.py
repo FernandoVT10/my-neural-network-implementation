@@ -3,42 +3,55 @@ from .Layer import Layer
 
 from math import floor
 
-
 class MaxPooling(Layer):
     def __init__(self, pooling_shape):
         self.shape = pooling_shape
 
     def forward(self, input):
-        """
-            Here the output shape is given by:
-            1. The input depth. In this case this layer is gonna be after of a convolutional
-            layer, thus we need to return the same depth or number of channels (i.e: r g b)
-
-            2. The columns of the input divided by the width of the pooling "filter".
-
-            3. The rows of the input divided by the height of the pooling "filter"
-        """
         self.input = input
+
+        pool_width, pool_height = self.shape
+        input_depth, input_height, input_width = self.input.shape
+
         output_shape = (
-            self.input.shape[0],
-            floor(self.input.shape[2] / self.shape[0]),
-            floor(self.input.shape[1] / self.shape[1])
+            input_depth,
+            floor(input_height / pool_height),
+            floor(input_width / pool_width)
         )
 
         self.output = np.zeros(output_shape)
 
-        for y in range(output_shape[2]):
-            column_top = y * self.shape[1]
-            column_bottom = column_top + self.shape[1]
+        for y in range(output_shape[1]):
+            top = y * pool_height
+            bottom = top + pool_height
 
-            for x in range(output_shape[1]):
-                row_left = x * self.shape[0]
-                row_right = row_left + self.shape[0]
+            for x in range(output_shape[2]):
+                left = x * pool_width
+                right = left + pool_width
                 
-                a = self.input[:, column_top:column_bottom, row_left:row_right]
-                self.output[:, x, y] = np.max(a, axis=(1, 2))
+                matrix = self.input[:, top:bottom, left:right]
+                self.output[:, y, x] = np.max(matrix, axis=(1, 2))
 
         return self.output
 
     def backward(self, output_gradient, learning_rate):
-        pass
+        input_gradient = np.zeros(self.input.shape)
+
+        pool_width, pool_height = self.shape
+        output_depth, output_height, output_width = self.output.shape
+
+        temp_ones = np.ones((output_depth, pool_height, pool_width))
+
+        for y in range(output_height):
+            top = y * pool_height
+            bottom = top + pool_height
+
+            for x in range(output_width):
+                left = x * pool_width
+                right = left + pool_width
+
+                mask = temp_ones * self.output[:, y, x][:,np.newaxis,np.newaxis]
+                local_gradient = self.input[:, top:bottom, left:right]==mask
+                input_gradient[:, top:bottom, left:right] = local_gradient * output_gradient[:, y, x][:, np.newaxis, np.newaxis]
+
+        return input_gradient
