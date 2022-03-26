@@ -18,3 +18,13 @@ def categorical_cross_entropy(y_predicted, y_true):
 def categorical_cross_entropy_prime(y_predicted, y_true):
     return -y_true / y_predicted
     #  return y_predicted - y_true
+
+losses_list = {
+    "mse": [mse, mse_prime],
+    "binary_cross_entropy": [
+        binary_cross_entropy, binary_cross_entropy_prime
+    ],
+    "categorical_cross_entropy": [
+        categorical_cross_entropy, categorical_cross_entropy_prime
+    ]
+}

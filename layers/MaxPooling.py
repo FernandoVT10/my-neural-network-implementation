@@ -7,25 +7,33 @@ class MaxPooling(Layer):
     def __init__(self, pooling_shape):
         self.shape = pooling_shape
 
-    def forward(self, input):
-        self.input = input
+    def prepare(self, input_shape):
+        self.input_shape = input_shape
 
-        pool_width, pool_height = self.shape
-        input_depth, input_height, input_width = self.input.shape
+        input_depth, input_height, input_width = self.input_shape
+        pool_height, pool_width = self.shape
 
-        output_shape = (
+        self.output_shape = (
             input_depth,
             floor(input_height / pool_height),
             floor(input_width / pool_width)
         )
 
-        self.output = np.zeros(output_shape)
+        return self.output_shape
 
-        for y in range(output_shape[1]):
+    def forward(self, input):
+        self.input = input
+
+        pool_height, pool_width = self.shape
+        output_height, output_width = self.output_shape[1:]
+
+        self.output = np.zeros(self.output_shape)
+
+        for y in range(output_height):
             top = y * pool_height
             bottom = top + pool_height
 
-            for x in range(output_shape[2]):
+            for x in range(output_width):
                 left = x * pool_width
                 right = left + pool_width
                 
@@ -35,10 +43,10 @@ class MaxPooling(Layer):
         return self.output
 
     def backward(self, output_gradient, learning_rate):
-        input_gradient = np.zeros(self.input.shape)
+        input_gradient = np.zeros(self.input_shape)
 
         pool_width, pool_height = self.shape
-        output_depth, output_height, output_width = self.output.shape
+        output_depth, output_height, output_width = self.output_shape
 
         temp_ones = np.ones((output_depth, pool_height, pool_width))
 

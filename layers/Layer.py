@@ -3,6 +3,9 @@ class Layer:
         self.input = None
         self.output = None
 
+    def prepare(self, input_shape):
+        return input_shape
+
     def forward(self, input):
         pass
 

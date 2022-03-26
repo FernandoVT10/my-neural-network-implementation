@@ -3,9 +3,13 @@ from .Layer import Layer
 import numpy as np
 
 class Dense(Layer):
-    def __init__(self, input_shape, output_shape):
-        self.weights = np.random.standard_normal((input_shape, output_shape)) * 0.01
-        self.bias = np.ones(output_shape)
+    def __init__(self, output_size):
+        self.output_size = output_size
+
+    def prepare(self, input_shape):
+        self.weights = np.random.standard_normal((input_shape, self.output_size)) * 0.01
+        self.bias = np.ones(self.output_size)
+        return self.output_size
 
     def forward(self, input):
         self.input = input

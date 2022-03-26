@@ -1,11 +1,17 @@
 import numpy as np
 
+from losses import losses_list
+
 class NeuralNetwork:
-    def __init__(self, layers, loss, loss_prime):
+    def __init__(self, layers):
         self.layers = layers
-        self.loss = loss
-        self.loss_prime = loss_prime
         self.error_array = []
+
+    def prepare(self, input_shape, loss):
+        self.loss, self.loss_prime = losses_list[loss]
+
+        for layer in self.layers:
+            input_shape = layer.prepare(input_shape)
 
     def forward(self, x):
         output = x

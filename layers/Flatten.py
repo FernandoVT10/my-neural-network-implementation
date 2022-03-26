@@ -3,9 +3,13 @@ import numpy as np
 from .Layer import Layer
 
 class Flatten(Layer):
-    def __init__(self, input_shape, output_shape):
+    def prepare(self, input_shape):
+        input_depth, input_height, input_width = input_shape
+
         self.input_shape = input_shape
-        self.output_shape = output_shape
+        self.output_shape = input_depth * input_height * input_width
+
+        return self.output_shape
 
     def forward(self, input):
         return np.reshape(input, (1, self.output_shape))
