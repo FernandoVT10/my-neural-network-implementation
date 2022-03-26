@@ -34,11 +34,11 @@ class Convolution(Layer):
         return output
     
     def backward(self, output_gradient, learning_rate):
-        input_gradient = np.zeros((self.depth, *self.input_shape[1:]))
+        input_gradient = np.zeros(self.input_shape)
 
         for i in range(self.depth):
             for k in range(self.input_depth):
-                input_gradient[i] += signal.convolve2d(output_gradient[i], self.kernels[i, k], mode="full")
+                input_gradient[k] += signal.convolve2d(output_gradient[i], self.kernels[i, k], mode="full")
                 self.kernels[i, k] -= signal.correlate2d(self.input[k], output_gradient[i], mode="valid") * learning_rate
 
         self.biases -= output_gradient * learning_rate
