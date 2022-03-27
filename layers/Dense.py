@@ -7,7 +7,8 @@ class Dense(Layer):
         self.output_size = output_size
 
     def prepare(self, input_shape):
-        self.weights = np.random.standard_normal((input_shape, self.output_size)) * 0.01
+        stddev = np.sqrt(1 / input_shape)
+        self.weights = np.random.normal(0.0, stddev, (input_shape, self.output_size))
         self.bias = np.ones(self.output_size)
         return self.output_size
 

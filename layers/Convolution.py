@@ -17,7 +17,8 @@ class Convolution(Layer):
         self.input_depth = input_depth
         self.output_shape = (self.depth, input_height - kernel_height + 1, input_width - kernel_width + 1)
 
-        self.kernels = np.random.random((self.depth, input_depth, *self.kernel_shape))
+        stddev = np.sqrt(1 / np.sum(input_shape))
+        self.kernels = np.random.normal(0.0, stddev, (self.depth, input_depth, *self.kernel_shape))
         self.biases = np.zeros(shape=self.output_shape)
 
         return self.output_shape

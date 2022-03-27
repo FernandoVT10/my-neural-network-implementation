@@ -4,10 +4,8 @@ from .Layer import Layer
 
 class Flatten(Layer):
     def prepare(self, input_shape):
-        input_depth, input_height, input_width = input_shape
-
         self.input_shape = input_shape
-        self.output_shape = input_depth * input_height * input_width
+        self.output_shape = np.prod(self.input_shape)
 
         return self.output_shape
 
